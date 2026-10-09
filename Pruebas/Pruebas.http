@@ -1,0 +1,177 @@
+### =====================================================================
+### Pruebas HTTP para Laboratorio 1 - Eduardo Chacón
+### Ejecutar en orden: primero los logins para capturar los tokens.
+### Usuarios precargados:
+###   - admin / admin123 (SUPER-ADMIN-ROLE)
+###   - user  / user123  (USER)
+### =====================================================================
+
+### 1. Login como SUPER-ADMIN (Guarda el token en {{token_admin}})
+POST http://localhost:8080/laboratorio1eduardochacon/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+> {% client.global.set("token_admin", response.body.token); %}
+
+### 2. Login como USER normal (Guarda el token en {{token_user}})
+POST http://localhost:8080/laboratorio1eduardochacon/auth/login
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "user123"
+}
+
+> {% client.global.set("token_user", response.body.token); %}
+
+### 3. Login con contraseña incorrecta -> Debe responder 401 Unauthorized
+POST http://localhost:8080/laboratorio1eduardochacon/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "incorrecta"
+}
+
+### =====================================================================
+### PRUEBAS DE AUTENTICACIÓN Y SEGURIDAD
+### =====================================================================
+
+### 4. Intentar acceder sin token -> Debe responder 401 Unauthorized
+GET http://localhost:8080/laboratorio1eduardochacon/producto/listar
+
+### =====================================================================
+### MÓDULO DE CATEGORÍAS
+### =====================================================================
+
+### 5. Crear Categoría como USER normal -> Debe responder 403 Forbidden
+POST http://localhost:8080/laboratorio1eduardochacon/categoria/crear
+Content-Type: application/json
+Authorization: Bearer {{token_user}}
+
+{
+  "nombre": "Prueba Denegada",
+  "descripcion": "El usuario USER no tiene permiso de escritura"
+}
+
+### 6. Crear Categoría como SUPER-ADMIN -> Debe responder 201 Created
+POST http://localhost:8080/laboratorio1eduardochacon/categoria/crear
+Content-Type: application/json
+Authorization: Bearer {{token_admin}}
+
+{
+  "nombre": "Electrónica",
+  "descripcion": "Dispositivos y accesorios tecnológicos"
+}
+
+### 7. Crear Categoría como SUPER-ADMIN -> Debe responder 201 Created
+POST http://localhost:8080/laboratorio1eduardochacon/categoria/crear
+Content-Type: application/json
+Authorization: Bearer {{token_admin}}
+
+{
+  "nombre": "Hogar",
+  "descripcion": "Articulos de limpieza del hogar"
+}
+
+### 8. Listar Categorías como USER -> Debe responder 200 OK
+GET http://localhost:8080/laboratorio1eduardochacon/categoria/listar
+Authorization: Bearer {{token_user}}
+
+### 9. Buscar Categoría por ID como USER -> Debe responder 200 OK
+GET http://localhost:8080/laboratorio1eduardochacon/categoria/listar/1
+Authorization: Bearer {{token_user}}
+
+### 10. Actualizar Categoría como SUPER-ADMIN -> Debe responder 200 OK
+PUT http://localhost:8080/laboratorio1eduardochacon/categoria/1
+Content-Type: application/json
+Authorization: Bearer {{token_admin}}
+
+{
+  "nombre": "Electrónica y Cómputo",
+  "descripcion": "Dispositivos, accesorios y componentes de cómputo"
+}
+
+### 11. Eliminar Categoría como SUPER-ADMIN -> Debe responder 204 No Content
+DELETE http://localhost:8080/laboratorio1eduardochacon/categoria/eliminar/1
+Authorization: Bearer {{token_admin}}
+
+### =====================================================================
+### MÓDULO DE PRODUCTOS
+### =====================================================================
+
+### 11. Crear Producto como USER normal -> Debe responder 403 Forbidden
+POST http://localhost:8080/laboratorio1eduardochacon/producto/crear
+Content-Type: application/json
+Authorization: Bearer {{token_user}}
+
+{
+  "nombre": "Mouse Gamer",
+  "descripcion": "Mouse óptico 16000 DPI",
+  "precio": 35.00,
+  "stock": 10,
+  "categoria": {
+    "id": 1
+  }
+}
+
+### 12. Crear Producto como SUPER-ADMIN -> Debe responder 201 Created
+POST http://localhost:8080/laboratorio1eduardochacon/producto/crear
+Content-Type: application/json
+Authorization: Bearer {{token_admin}}
+
+{
+  "nombre": "Teclado Mecánico",
+  "descripcion": "Teclado RGB con switches azules",
+  "precio": 45.99,
+  "stock": 20,
+  "categoria": {
+    "id": 1
+  }
+}
+
+### 13. Crear Producto como SUPER-ADMIN -> Debe responder 201 Created
+POST http://localhost:8080/laboratorio1eduardochacon/producto/crear
+Content-Type: application/json
+Authorization: Bearer {{token_admin}}
+
+{
+  "nombre": "Limpiador Mrs Musculo",
+  "descripcion": "Limpiador multiusos para el hogar",
+  "precio": 8.99,
+  "stock": 30,
+  "categoria": {
+    "id": 2
+  }
+}
+
+### 14. Listar Productos como USER -> Debe responder 200 OK
+GET http://localhost:8080/laboratorio1eduardochacon/producto/listar
+Authorization: Bearer {{token_user}}
+
+### 15. Buscar Producto por ID como USER -> Debe responder 200 OK
+GET http://localhost:8080/laboratorio1eduardochacon/producto/listar/1
+Authorization: Bearer {{token_user}}
+
+### 16. Actualizar Producto como SUPER-ADMIN -> Debe responder 200 OK
+PUT http://localhost:8080/laboratorio1eduardochacon/producto/actualizar/1
+Content-Type: application/json
+Authorization: Bearer {{token_admin}}
+
+{
+  "nombre": "Teclado Mecánico Inalámbrico",
+  "descripcion": "Teclado RGB Bluetooth con switches rojos",
+  "precio": 59.99,
+  "stock": 15,
+  "categoria": {
+    "id": 1
+  }
+}
+
+### 17. Eliminar Producto como SUPER-ADMIN -> Debe responder 204 No Content
+DELETE http://localhost:8080/laboratorio1eduardochacon/producto/eliminar/1
+Authorization: Bearer {{token_admin}}
