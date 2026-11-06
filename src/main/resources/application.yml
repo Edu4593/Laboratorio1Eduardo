@@ -31,5 +31,8 @@ server:
 
 keycloak:
   client-id: laboratorio1
-
   token-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token
+  server-url: http://localhost:8181
+  realm: Laboratorio1Eduardo
+  admin-user: admin
+  admin-password: admin
